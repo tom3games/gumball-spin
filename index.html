@@ -1,0 +1,229 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<script id="ghMove">if(location.hostname==='tom3games.github.io'){location.replace('https://tom3games.com/play/gumball-spin/'+location.search+location.hash)}</script>
+<link rel="canonical" href="https://tom3games.com/play/gumball-spin/">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<title>ぐるぐるガムボール｜台を回してガムを転がす迷路ゲーム</title>
+<meta name="description" content="ゲームセンターのガムボールの台を、左右スワイプでぐるっと回す。ガムは下へ転がる。画鋲を避けて取り出し口へ。ガム玉を食べると点は増えるが太って細い道を通れなくなる。">
+<meta property="og:type" content="website">
+<meta property="og:title" content="ぐるぐるガムボール">
+<meta property="og:description" content="台を回してガムを取り出し口へ。食べるほど点は増えるが、太って細い道を通れなくなる。">
+<meta property="og:image" content="https://tom3games.com/play/gumball-spin/og.png?v=1">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:url" content="https://tom3games.com/play/gumball-spin/">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="theme-color" content="#7d1d18">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DotGothic16&family=Zen+Kaku+Gothic+New:wght@700;900&display=swap" rel="stylesheet">
+<style>
+[hidden]{display:none!important}
+:root{--body:#a8261f;--bodyD:#6e1612;--bodyL:#cf4a3c;--chrome:#d9d9d4;--chromeD:#8d8f8c;--led:#ffb43a;--ledD:#3a2208;--panel:#17110d;--cream:#f1e6cf;--ink:#2a1a14;--blue:#2d9ee0;
+  --sans:"Zen Kaku Gothic New","Hiragino Sans","Yu Gothic",sans-serif;--dot:"DotGothic16","Osaka-mono",monospace}
+*{box-sizing:border-box;margin:0;padding:0}
+html{touch-action:manipulation;-webkit-text-size-adjust:100%;text-size-adjust:100%;background:var(--bodyD)}
+body{-webkit-user-select:none;user-select:none;-webkit-touch-callout:none;font-family:var(--sans);color:var(--cream);overflow:hidden;height:100svh;background:transparent}
+button{font-family:inherit;color:inherit;border:0;background:none;cursor:pointer;touch-action:manipulation;-webkit-tap-highlight-color:transparent}
+.view{position:fixed;inset:0;height:100svh;overflow:hidden;z-index:2}
+/* 筐体の地: 赤い鋳物の塗装 */
+.cab{background:radial-gradient(120% 70% at 30% 0%,var(--bodyL) 0%,var(--body) 38%,var(--bodyD) 100%)}
+.wrap{position:relative;height:100%;max-width:480px;margin:0 auto}
+.led{font-family:var(--dot);color:var(--led);text-shadow:0 0 6px rgba(255,170,40,.55)}
+
+/* ロード画面 */
+#loading{position:fixed;inset:0;z-index:90;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:18px;transition:opacity .35s}
+#loading svg{width:110px;height:140px}
+#loading .lb{animation:lb 1.1s ease-in-out infinite}
+#loading .lb:nth-child(2){animation-delay:.18s}#loading .lb:nth-child(3){animation-delay:.36s}#loading .lb:nth-child(4){animation-delay:.54s}
+@keyframes lb{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}
+#loading p{font-size:15px;letter-spacing:.08em}
+#loadBar{width:150px;height:6px;background:var(--ledD);border-radius:3px;overflow:hidden}
+#loadBar i{display:block;height:100%;width:0;background:var(--led);transition:width .2s}
+
+/* タイトル */
+#vTitle .wrap{display:flex;flex-direction:column;align-items:stretch;padding:calc(14px + env(safe-area-inset-top)) 18px calc(14px + env(safe-area-inset-bottom) + var(--inapp-bot,0px))}
+#marq{position:relative;background:var(--panel);border-radius:10px;padding:10px 14px 12px;box-shadow:inset 0 0 0 3px #2c1f17,0 3px 0 var(--bodyD)}
+#marq .bulbs{position:absolute;left:8px;right:8px;top:4px;height:4px;background:radial-gradient(circle,#ffd98a 1.6px,transparent 2.2px) 0 0/14px 4px repeat-x;opacity:.8}
+#tH{font-weight:900;line-height:.98;letter-spacing:-.01em;margin-top:6px}
+#tH .a{display:block;font-size:min(9vw,40px,5svh);color:#ffe7b0}
+#tH .b{display:block;font-size:min(15.6vw,72px,8.6svh);color:#fff6e4;transform:rotate(-3deg);transform-origin:0 60%;margin-top:2px;text-shadow:0 3px 0 var(--body)}
+#tSub{font-size:14px;margin-top:8px;color:#f0d6c0}
+#tBest{position:absolute;right:12px;bottom:10px;font-size:14px}
+#tDome{flex:1;min-height:0;position:relative;display:flex;align-items:center;justify-content:center;margin:10px 0 4px}
+#tDomeCv{height:100%;max-height:min(92vw,430px);aspect-ratio:1;width:auto}
+#bStartRow{display:flex;align-items:center;gap:14px;justify-content:center}
+/* 一番押してほしいボタン = 筐体の丸い押しボタン */
+#bStart{width:96px;height:96px;border-radius:50%;flex:none;background:radial-gradient(circle at 38% 32%,#ffd36b 0%,#f2a41e 45%,#b86b07 100%);box-shadow:0 0 0 6px #e9e6dd,0 0 0 9px var(--chromeD),0 9px 0 9px #3b0d0a;color:#4a2504;font-weight:900;font-size:16px;line-height:1.15;transition:transform .06s}
+#bStart:active{transform:translateY(5px)}
+#coinSlot{display:flex;flex-direction:column;align-items:flex-start;gap:4px;font-size:15px;font-weight:700;color:#ffe7b0}
+#coinSlot i{display:block;width:12px;height:42px;border-radius:6px;background:#111;box-shadow:0 0 0 5px var(--chrome),0 0 0 7px var(--chromeD)}
+#coinSlot .row{display:flex;align-items:center;gap:14px}
+.tLinks{display:flex;gap:6px;justify-content:center;margin-top:18px}
+.tLinks button{min-height:44px;padding:0 12px;font-size:14px;font-weight:700;color:#f5dccb;border-radius:22px;background:rgba(0,0,0,.18)}
+.tLinks svg{width:20px;height:20px;fill:none;stroke:#f5dccb;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;vertical-align:middle}
+
+/* 遊ぶ */
+#vPlay{background:#24130f}
+#cv{position:absolute;inset:0;width:100%;height:100%;display:block;touch-action:none}
+#hud{position:absolute;left:0;right:0;top:0;z-index:5;pointer-events:none;padding:calc(6px + env(safe-area-inset-top)) 8px 0}
+#ledBar{display:flex;align-items:stretch;gap:6px;background:var(--panel);border-radius:8px;padding:5px 10px 6px;box-shadow:inset 0 0 0 2px #2c1f17,0 2px 6px rgba(0,0,0,.4);max-width:464px;margin:0 auto}
+#ledBar .cell{display:flex;flex-direction:column;justify-content:center;min-width:0}
+#ledBar .k{font-family:var(--dot);font-size:10px;color:#9b6a2a;letter-spacing:.1em;line-height:1}
+#ledBar .v{font-size:22px;line-height:1.05;white-space:nowrap}
+#ledBar .grow{flex:1;align-items:center}
+#hBalls{display:flex;gap:4px;margin-top:3px}
+#hBalls i{display:block;width:13px;height:13px;border-radius:50%;background:radial-gradient(circle at 35% 30%,#bfe8ff,var(--blue) 55%,#13557e);}
+#hBalls i.off{background:#3a2a20;box-shadow:inset 0 0 0 1px #5a4232}
+#hName{font-family:var(--sans);font-weight:700;font-size:12px;color:#f0d6c0;text-align:center;margin-top:4px;text-shadow:0 1px 2px #000}
+#pBtns{position:absolute;z-index:6;left:10px;right:10px;bottom:calc(12px + env(safe-area-inset-bottom) + var(--inapp-bot,0px));display:flex;justify-content:space-between;pointer-events:none}
+#pBtns button{pointer-events:auto;min-width:44px;height:44px;border-radius:22px;background:rgba(23,17,13,.78);box-shadow:inset 0 0 0 2px #4d3a2c;font-size:13px;font-weight:700;color:#f0d6c0;padding:0 14px;display:flex;align-items:center;justify-content:center}
+#pBtns svg{width:20px;height:20px;fill:none;stroke:#f0d6c0;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+#msg{position:absolute;z-index:7;left:50%;top:28%;transform:translate(-50%,-50%) rotate(-3deg);font-weight:900;font-size:26px;color:#fff6e4;white-space:nowrap;max-width:92vw;pointer-events:none;opacity:0;-webkit-text-stroke:6px var(--ink);paint-order:stroke fill;transition:opacity .15s}
+#msg.on{opacity:1}
+#msg.big{font-size:44px}
+#tut{position:absolute;z-index:7;left:50%;bottom:calc(84px + env(safe-area-inset-bottom) + var(--inapp-bot,0px));transform:translateX(-50%);width:220px;height:70px;pointer-events:none}
+#tut .trail{position:absolute;left:20px;right:20px;top:24px;height:6px;border-radius:3px;background:rgba(255,246,228,.35)}
+#tut .fing{position:absolute;top:8px;left:0;width:38px;height:38px;border-radius:50%;background:rgba(255,246,228,.9);box-shadow:0 0 0 6px rgba(255,246,228,.25);animation:fing 1.6s ease-in-out infinite}
+@keyframes fing{0%,100%{transform:translateX(10px)}50%{transform:translateX(172px)}}
+#tut p{position:absolute;left:0;right:0;bottom:0;text-align:center;font-weight:900;font-size:16px;color:#fff6e4;-webkit-text-stroke:4px var(--ink);paint-order:stroke fill}
+#card{position:absolute;z-index:8;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;pointer-events:none;opacity:0;transition:opacity .25s}
+#card.on{opacity:1}
+#card .n{font-size:20px}
+#card .t{font-weight:900;font-size:34px;color:#fff6e4;-webkit-text-stroke:6px var(--ink);paint-order:stroke fill;margin-top:4px}
+#card .tk{margin-top:8px;font-size:24px}
+
+/* 結果 */
+#vRes .wrap{display:flex;flex-direction:column;padding:calc(12px + env(safe-area-inset-top)) 18px calc(12px + env(safe-area-inset-bottom) + var(--inapp-bot,0px))}
+#rTop{background:var(--panel);border-radius:10px;padding:10px 14px;box-shadow:inset 0 0 0 3px #2c1f17;display:flex;justify-content:space-between;align-items:center}
+#rStamp{font-weight:900;font-size:18px;color:#fff6e4}
+#rStage{font-size:16px}
+#rSlotBox{flex:1;min-height:0;position:relative;display:flex;flex-direction:column;align-items:center;margin-top:14px}
+#rSlot{width:78%;max-width:300px;height:16px;border-radius:8px;background:#111;box-shadow:0 0 0 5px var(--chrome),0 0 0 7px var(--chromeD);position:relative;z-index:2}
+#rStrip{position:relative;width:64%;max-width:240px;flex:1;min-height:0;overflow:hidden;margin-top:-8px}
+#rTickets{position:absolute;left:0;right:0;top:0;transform:translateY(-100%);transition:transform 1.6s cubic-bezier(.2,.7,.3,1)}
+#rTickets.out{transform:translateY(0)}
+.tkt{height:var(--th,54px);background:#f6a6b4;border-left:2px dashed rgba(120,30,50,.35);border-right:2px dashed rgba(120,30,50,.35);border-bottom:2px dashed rgba(120,30,50,.45);display:flex;align-items:center;justify-content:center;color:#7a1f35;font-family:var(--dot);font-size:15px;letter-spacing:.2em}
+.tkt:nth-child(even){background:#f3b9c3}
+#rMain{position:absolute;left:50%;bottom:6px;transform:translateX(-50%) rotate(-2deg);background:#fff6e4;color:var(--ink);border-radius:6px;padding:10px 18px 12px;box-shadow:0 6px 18px rgba(0,0,0,.35);text-align:center;width:min(86%,300px);opacity:0;transition:opacity .4s ease .9s}
+#rMain.on{opacity:1}
+#rNum{font-weight:900;font-size:min(16vw,66px,8.5svh);line-height:1;letter-spacing:-.02em}
+#rNum small{font-size:.34em;margin-left:4px}
+#rRank{font-weight:900;font-size:19px;margin-top:6px;color:var(--body)}
+#rScore{font-size:12px;color:#6d5246;margin-top:4px;font-weight:700}
+#rBtns{display:flex;flex-direction:column;align-items:center;margin-top:12px}
+#bAgain{min-width:200px;height:56px;border-radius:28px;background:radial-gradient(circle at 40% 30%,#ffd36b,#f2a41e 55%,#b86b07);box-shadow:0 0 0 4px #e9e6dd,0 6px 0 4px #3b0d0a;color:#4a2504;font-weight:900;font-size:19px}
+#bAgain:active{transform:translateY(4px)}
+#rSub{display:flex;gap:8px;margin-top:14px}
+#rSub button{min-height:44px;padding:0 14px;border-radius:22px;background:rgba(0,0,0,.22);font-size:14px;font-weight:700;color:#f5dccb}
+
+/* 遊び方 */
+#vHow{z-index:20;background:rgba(20,10,8,.86);display:flex;align-items:center;justify-content:center;padding:16px}
+#howCard{background:var(--cream);color:var(--ink);border-radius:8px;max-width:420px;width:100%;padding:18px 18px 14px;box-shadow:0 10px 30px rgba(0,0,0,.5);max-height:calc(100svh - 32px);overflow:hidden;display:flex;flex-direction:column}
+#howCard h2{font-size:22px;font-weight:900}
+#howList{margin-top:10px;display:flex;flex-direction:column;gap:10px}
+#howList div{display:grid;grid-template-columns:52px 1fr;gap:8px;font-size:14px;line-height:1.55;font-weight:700}
+#howList b{font-size:15px;color:var(--body)}
+#howCred{font-size:10px;line-height:1.4;color:#7b6458;margin-top:12px;font-weight:700}
+#bHowClose{align-self:center;margin-top:12px;min-height:44px;padding:0 26px;border-radius:22px;background:var(--ink);color:var(--cream);font-weight:700;font-size:15px}
+@media (max-height:700px){#tH .b{font-size:min(14vw,60px,8svh)}#bStart{width:84px;height:84px;font-size:14px}.tLinks{margin-top:12px}#howList div{font-size:13px;line-height:1.45}}
+</style>
+</head>
+<body class="cab">
+<div id="loading" class="cab">
+  <svg viewBox="0 0 110 140" aria-hidden="true">
+    <circle cx="55" cy="52" r="44" fill="#f6efe2" fill-opacity=".22" stroke="#e9e6dd" stroke-width="4"/>
+    <g><circle class="lb" cx="38" cy="70" r="9" fill="#2d9ee0"/><circle class="lb" cx="57" cy="74" r="9" fill="#f2a41e"/><circle class="lb" cx="74" cy="66" r="9" fill="#e9668a"/><circle class="lb" cx="48" cy="54" r="9" fill="#5bbf6a"/></g>
+    <path d="M22 92h66l8 40H14z" fill="#a8261f" stroke="#6e1612" stroke-width="3"/>
+    <rect x="45" y="106" width="20" height="14" rx="3" fill="#111"/>
+  </svg>
+  <p class="led" id="loadTxt">ガムを詰めています</p>
+  <div id="loadBar"><i></i></div>
+</div>
+
+<main id="vTitle" class="view cab" hidden>
+  <div class="wrap">
+    <div id="marq"><div class="bulbs"></div>
+      <h1 id="tH"><span class="a" id="tT1">ぐるぐる</span><span class="b" id="tT2">ガムボール</span></h1>
+      <p id="tSub"></p>
+      <span id="tBest" class="led"></span>
+    </div>
+    <div id="tDome"><canvas id="tDomeCv" width="400" height="400"></canvas></div>
+    <div id="bStartRow">
+      <div id="coinSlot"><div class="row"><i></i><span id="tCoin">100円を入れる</span></div></div>
+      <button id="bStart" aria-label="start">START</button>
+    </div>
+    <div class="tLinks">
+      <button id="bHow">遊び方</button>
+      <button id="bLang">English</button>
+      <button id="bMute" aria-label="sound"></button>
+    </div>
+  </div>
+</main>
+
+<main id="vPlay" class="view" hidden>
+  <canvas id="cv"></canvas>
+  <div id="hud">
+    <div id="ledBar">
+      <div class="cell"><span class="k" id="kSt">STAGE</span><span class="v led" id="hSt">1/8</span></div>
+      <div class="cell grow"><span class="k" id="kSc">SCORE</span><span class="v led" id="hSc">00000</span></div>
+      <div class="cell"><span class="k" id="kBl">BALL</span><div id="hBalls"><i></i><i></i><i></i></div></div>
+    </div>
+    <div id="hName"></div>
+  </div>
+  <div id="pBtns"><button id="bMute2" aria-label="sound"></button><button id="bRetry">やり直す</button></div>
+  <div id="msg"></div>
+  <div id="tut" hidden><div class="trail"></div><div class="fing"></div><p id="tutTxt"></p></div>
+  <div id="card"><span class="n led" id="cN"></span><span class="t" id="cT"></span><span class="tk led" id="cTk"></span></div>
+</main>
+
+<main id="vRes" class="view cab" hidden>
+  <div class="wrap">
+    <div id="rTop"><span id="rStamp"></span><span id="rStage" class="led"></span></div>
+    <div id="rSlotBox">
+      <div id="rSlot"></div>
+      <div id="rStrip"><div id="rTickets"></div></div>
+      <div id="rMain"><div id="rNum">0<small>枚</small></div><div id="rRank"></div><div id="rScore"></div></div>
+    </div>
+    <div id="rBtns">
+      <button id="bAgain">もう一回</button>
+      <div id="rSub"><button id="bPost">Xでポスト</button><button id="bSave">画像を保存</button></div>
+    </div>
+  </div>
+</main>
+
+<div id="vHow" class="view" hidden>
+  <div id="howCard"><h2 id="howT">遊び方</h2><div id="howList"></div><p id="howCred"></p><button id="bHowClose">とじる</button></div>
+</div>
+
+<script>
+(function(){
+  var opt={passive:false};
+  ['gesturestart','gesturechange','gestureend'].forEach(function(n){document.addEventListener(n,function(e){e.preventDefault()},opt)});
+  document.addEventListener('touchmove',function(e){if(e.touches&&e.touches.length>1)e.preventDefault()},opt);
+  var last=0;document.addEventListener('touchend',function(e){var n=Date.now();if(n-last<300&&!(e.target.closest&&e.target.closest('button,a')))e.preventDefault();last=n},opt);
+  document.addEventListener('dblclick',function(e){e.preventDefault()},opt);
+  window.addEventListener('wheel',function(e){if(e.ctrlKey)e.preventDefault()},opt);
+  window.addEventListener('keydown',function(e){if((e.ctrlKey||e.metaKey)&&['+','-','=','0',';'].indexOf(e.key)>=0)e.preventDefault()});
+})();
+(function(){
+  var errs=[];
+  window.addEventListener('error',function(e){errs.push((e.message||'error')+' @'+(e.filename||'')+':'+(e.lineno||''))});
+  window.addEventListener('unhandledrejection',function(e){errs.push('reject: '+(e.reason&&e.reason.message||e.reason))});
+  setTimeout(function(){
+    if(window.__jsUp) return;
+    var l=document.getElementById('loading');if(l)l.style.display='none';
+    var d=document.createElement('div');d.style.cssText='position:fixed;inset:auto 8px 8px 8px;z-index:199;background:#fff;color:#b00;font:12px/1.4 monospace;white-space:pre-wrap;padding:10px';
+    d.textContent='起動できませんでした / failed to start\n'+(errs.join('\n')||'(no error captured)')+'\n'+navigator.userAgent;
+    document.body.appendChild(d);
+  },15000);
+})();
+</script>
+<script src="tm.js?v=1" data-game="gumball-spin"></script>
+<script src="sfx.js?v=1"></script>
+<script src="data.js?v=1"></script>
+<script src="game.js?v=1"></script>
+<script src="support.js?v=1" data-ja="ガム" data-en="a pack of gum"></script>
+</body>
+</html>

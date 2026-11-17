@@ -1,0 +1,19 @@
+- snd/coin.mp3: Coin Drop / Vinrax / CC0
+- snd/crowd.mp3: Crowd Shouting/Speaking Ambience / StarNinjas / CC0
+- snd/bgm.mp3: quirky vendor / Bobjt / CC-BY 3.0,CC0
+- snd/pop1.mp3: 3 Pop Sounds / wubitog / CC0
+- snd/pop2.mp3: 3 Pop Sounds / wubitog / CC0
+- snd/pop3.mp3: 3 Pop Sounds / wubitog / CC0
+- snd/hit1.mp3: 75 CC0 breaking / falling / hit sfx / rubberduck / CC0
+- snd/hit2.mp3: 75 CC0 breaking / falling / hit sfx / rubberduck / CC0
+- snd/hit3.mp3: 75 CC0 breaking / falling / hit sfx / rubberduck / CC0
+- snd/chute.mp3: 75 CC0 breaking / falling / hit sfx / rubberduck / CC0
+- snd/chip1.mp3: 54 Casino sound effects (cards, dice, chips) / Kenney / CC0
+- snd/chip2.mp3: 54 Casino sound effects (cards, dice, chips) / Kenney / CC0
+- snd/squeak.mp3: Squeak toy sounds / bart / CC0
+- snd/clear.mp3: 85 Short music jingles / Kenney / CC0
+- snd/final.mp3: 85 Short music jingles / Kenney / CC0
+- snd/fail.mp3: 85 Short music jingles / Kenney / CC0
+- snd/goo1.mp3: 40 CC0 water / splash / slime SFX / rubberduck / CC0
+- snd/goo2.mp3: 40 CC0 water / splash / slime SFX / rubberduck / CC0
+- snd/hum.mp3: 100 CC0 SFX #2 / rubberduck / CC0
